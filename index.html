@@ -390,7 +390,7 @@ const W = {
     ]
   },
   SU: {
-    type:'rest', label:'완전 휴식', focus:'회복. 식사. 수면.',
+    type:'rest', label:'완전 휴식', focus:'회복 · 식사 · 수면',
     colorClass:'rest-color', btnClass:'active-rest',
   },
 };
@@ -420,11 +420,11 @@ const INFO_CONTENT = {
   SU:{
     icon:'🌿',
     title:'완전 휴식',
-    sub:'회복. 식사. 수면.',
+    sub:'회복 · 식사 · 수면.',
     cards:[
-      { cls:'', text:'<strong>수면도 훈련.</strong> 7~9시간 수면은 회복과 근육 성장에 중요함.' },
-      { cls:'', text:'<strong>단백질은 휴식일에도 중요합니다.</strong> 쉬는 날이라고 섭취량을 줄이지 마세요. 근육은 하루 종일 회복됩니다.' },
-      { cls:'', text:'<strong>월요일 준비.</strong> 내일은 푸시 데이 — 덤벨과 벤치를 미리 세팅해서 시작 장벽 줄이기.' },
+      { cls:'', text:'<strong>수면도 훈련.</strong> 7~9시간 수면은 회복과 근육 성장에 중요해요' },
+      { cls:'', text:'<strong>단백질은 휴식일에도 중요해요.</strong> 쉬는 날이라고 섭취량을 줄이지 마세요. 근육은 하루 종일 회복돼요.' },
+      { cls:'', text:'<strong>월요일 준비.</strong> 내일은 푸시 데이 — 덤벨과 벤치를 미리 세팅' },
     ]
   },
 };
@@ -704,8 +704,8 @@ function buildRules(isLifting) {
     { cls:'gold-r', title:'+2.5kg 규칙', text:'Hit the top of your rep range cleanly? <strong>Add 5 kg next session</strong> and drop back to the bottom. That\'s how muscle grows.' },
     { cls:'rust-r', title:'네거티브 천천히', text:'레터럴, 컬, 체스트 프레스는 <strong>3초 동안 내리기</strong>. 이완 구간이 근성장에 중요하다.' },
   ] : [
-    { cls:'gold-r', title:'회복도 훈련', text:'<strong>수면, 단백질, 수분</strong> — 세 가지 기본. 하나라도 놓치면 성장도 놓친다.' },
-    { cls:'rust-r', title:'바벨 단계적 도입', text:'약 63.5kg 바벨은 더 무거운 체스트 프레스와 로우를 가능하게 한다. <strong>6~8개월 차에 단계적으로 도입.</strong> 덤벨부터 숙달하기.' },
+    { cls:'gold-r', title:'회복도 훈련', text:'<strong>수면, 단백질, 수분</strong> — 세 가지 기본. 하나라도 놓치면 성장도 놓쳐요' },
+    { cls:'rust-r', title:'바벨 단계적 도입', text:'약 63.5kg 바벨은 더 무거운 체스트 프레스와 로우를 가능하게 해요. <strong>6~8개월 차에 단계적으로 도입.</strong> 덤벨부터 익숙해지기' },
   ];
   rules.forEach(r => {
     const div = document.createElement('div');
