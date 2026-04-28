@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<!-- saved from url=(0040)https://raefaub11.github.io/Workout_App/ -->
+<html lang="ko" data-immersive-translate-page-theme="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>workout</title>
+<link href="./Today&#39;s Workout_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ed;
+    --cream: #e8e3da;
+    --gold: #c9a84c;
+    --rust: #c4522a;
+    --slate: #3a3a3a;
+    --mid: #6b6b6b;
+    --light: #b8b4ac;
+    --green: #4a9e6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--black);
+    min-height: 100vh;
+    color: var(--white);
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 15% 85%, rgba(201,168,76,0.07) 0%, transparent 50%),
+      radial-gradient(circle at 85% 15%, rgba(196,82,42,0.07) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  /* ── HEADER ── */
+  .header { padding: 24px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .brand { font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 0.28em; color: var(--gold); opacity: 0.75; }
+  .date-pill {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--mid); background: rgba(255,255,255,0.05); padding: 4px 10px;
+    border-radius: 20px; border: 1px solid rgba(255,255,255,0.08);
+  }
+  .day-hero { font-family: 'Bebas Neue', sans-serif; font-size: clamp(50px,15vw,68px); line-height: 0.88; letter-spacing: 0.02em; margin-bottom: 6px; }
+  .day-hero .accent { display: block; }
+  .day-hero.push-color   .accent { color: var(--gold); }
+  .day-hero.pull-color   .accent { color: var(--light); }
+  .day-hero.sculpt-color .accent { color: var(--rust); }
+  .day-hero.lower-color  .accent { color: var(--rust); }
+  .day-hero.cardio-color .accent { color: #5b9bd5; }
+  .day-hero.flex-color   .accent { color: var(--gold); }
+  .day-hero.rest-color   .accent { color: var(--mid); }
+  .focus-line { font-size: 11px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mid); }
+
+  /* ── DAY NAV ── */
+  .day-nav { display: flex; gap: 6px; padding: 12px 20px 0; overflow-x: auto; scrollbar-width: none; }
+  .day-nav::-webkit-scrollbar { display: none; }
+  .day-btn {
+    flex-shrink: 0; padding: 5px 12px; border-radius: 20px;
+    border: 1.5px solid rgba(255,255,255,0.1); background: transparent;
+    color: var(--mid); font-family: 'DM Sans', sans-serif; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+  }
+  .day-btn:hover { border-color: rgba(255,255,255,0.25); color: var(--light); }
+  .day-btn.active-push   { border-color: var(--gold);  background: rgba(201,168,76,0.1);  color: var(--gold); }
+  .day-btn.active-pull   { border-color: var(--light); background: rgba(184,180,172,0.1); color: var(--light); }
+  .day-btn.active-sculpt { border-color: var(--rust);  background: rgba(196,82,42,0.1);   color: var(--rust); }
+  .day-btn.active-lower  { border-color: var(--rust);  background: rgba(196,82,42,0.1);   color: var(--rust); }
+  .day-btn.active-cardio { border-color: #5b9bd5;      background: rgba(91,155,213,0.1);  color: #5b9bd5; }
+  .day-btn.active-flex   { border-color: var(--gold);  background: rgba(201,168,76,0.1);  color: var(--gold); }
+  .day-btn.active-rest   { border-color: var(--mid);   background: rgba(107,107,107,0.1); color: var(--mid); }
+  .today-dot { display: inline-block; width: 5px; height: 5px; background: var(--gold); border-radius: 50%; margin-left: 4px; vertical-align: middle; position: relative; top: -1px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { padding: 14px 20px 0; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
+  .done-count { color: var(--gold); }
+  .progress-bar-bg { height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--rust)); border-radius: 2px; transition: width 0.35s ease; width: 0%; }
+
+  /* ── COMPLETE BANNER ── */
+  .complete-banner { margin: 14px 20px 0; padding: 14px 16px; background: rgba(74,158,107,0.1); border: 1px solid rgba(74,158,107,0.28); border-radius: 12px; text-align: center; display: none; }
+  .complete-banner.visible { display: block; }
+  .complete-banner h3 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; color: var(--green); letter-spacing: 0.06em; margin-bottom: 3px; }
+  .complete-banner p { font-size: 11.5px; color: var(--mid); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    margin: 16px 20px 0;
+    font-size: 9px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+
+  /* ── EXERCISE CARDS ── */
+  .exercises { padding: 10px 20px 0; display: flex; flex-direction: column; gap: 10px; }
+  .ex-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px; padding: 14px 16px 12px;
+    transition: border-color 0.2s, background 0.2s;
+    animation: fadeUp 0.35s ease both;
+  }
+  .ex-card.completed { background: rgba(74,158,107,0.07); border-color: rgba(74,158,107,0.22); }
+  .ex-card.bonus-card { border-style: dashed; border-color: rgba(201,168,76,0.2); background: rgba(201,168,76,0.03); }
+  .ex-card.bonus-card.completed { background: rgba(74,158,107,0.07); border-color: rgba(74,158,107,0.22); border-style: solid; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+  .ex-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .ex-name-text { font-size: 15px; font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 3px; }
+  .ex-cue { font-size: 11px; color: var(--mid); font-style: italic; line-height: 1.4; }
+  .ex-badge { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 0.04em; color: var(--gold); white-space: nowrap; padding-top: 1px; flex-shrink: 0; }
+  .ex-card.completed .ex-badge { color: var(--green); }
+  .ex-card.bonus-card .ex-badge { color: rgba(201,168,76,0.6); }
+  .ex-card.bonus-card.completed .ex-badge { color: var(--green); }
+
+  /* SET DOTS */
+  .set-dots { display: flex; gap: 8px; flex-wrap: wrap; }
+  .set-dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.13);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--mid);
+    cursor: pointer; transition: all 0.15s ease;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  .set-dot:active { transform: scale(0.88); }
+  .set-dot.done { background: var(--gold); border-color: var(--gold); color: var(--black); }
+  .ex-card.completed .set-dot.done { background: var(--green); border-color: var(--green); }
+  .set-dot.pop { animation: popDot 0.28s ease; }
+  @keyframes popDot { 0%{transform:scale(1);} 45%{transform:scale(1.3);} 100%{transform:scale(1);} }
+
+  /* ── WEIGHT INPUT ── */
+  .weight-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px; margin-bottom: 2px;
+  }
+  .weight-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); white-space: nowrap; }
+  .weight-input {
+    flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 7px 10px; color: var(--white);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    text-align: center; outline: none; transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+  .weight-input:focus { border-color: var(--gold); }
+  .weight-input::placeholder { color: rgba(255,255,255,0.15); font-weight: 400; }
+  .weight-unit { font-size: 11px; font-weight: 700; color: var(--mid); }
+  .weight-last { font-size: 10px; color: var(--mid); font-style: italic; margin-top: 3px; min-height: 14px; }
+  .weight-last .last-val { color: var(--gold); font-style: normal; font-weight: 700; }
+  .weight-last .pr-flag { color: var(--rust); font-weight: 700; margin-left: 4px; }
+
+  /* ── TIMER BUTTON (per card) ── */
+  .timer-btn {
+    margin-top: 10px; width: 100%; padding: 8px 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; color: var(--mid); font-family: 'DM Sans', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+  }
+  .timer-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .timer-btn.running { border-color: var(--rust); color: var(--rust); }
+  .timer-btn.done-timer { border-color: var(--green); color: var(--green); }
+
+  /* ── FINISHER / BONUS NOTE ── */
+  .finisher-tag { margin: 10px 20px 0; padding: 10px 14px; background: rgba(196,82,42,0.1); border: 1px solid rgba(196,82,42,0.22); border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--rust); display: none; }
+  .bonus-note { margin: 8px 20px 0; padding: 10px 14px; background: rgba(201,168,76,0.06); border-radius: 8px; font-size: 11px; color: var(--mid); font-style: italic; line-height: 1.5; display: none; }
+
+  /* ── REST / CARDIO SCREENS ── */
+  .info-screen { padding: 32px 20px 0; display: none; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+  .info-screen.visible { display: flex; }
+  .info-icon { font-size: 52px; }
+  .info-title { font-family: 'Bebas Neue', sans-serif; font-size: 38px; color: var(--mid); line-height: 0.9; letter-spacing: 0.04em; }
+  .info-sub { font-size: 13px; color: var(--mid); line-height: 1.6; max-width: 300px; }
+  .info-cards { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+  .info-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px 14px; text-align: left; font-size: 12px; color: var(--light); line-height: 1.55; }
+  .info-card strong { color: var(--gold); }
+  .info-card.blue-card { border-color: rgba(91,155,213,0.2); background: rgba(91,155,213,0.04); }
+  .info-card.blue-card strong { color: #5b9bd5; }
+
+  /* ── GLOBAL REST TIMER BAR ── */
+  .rest-timer-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #111; border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 12px 20px 18px; z-index: 100;
+    display: none; align-items: center; gap: 14px;
+  }
+  .rest-timer-bar.visible { display: flex; }
+  @media (min-width: 520px) {
+    .rest-timer-bar { left: 50%; right: auto; transform: translateX(-50%); width: 480px; border-radius: 14px 14px 0 0; }
+  }
+  .rest-display { font-family: 'Bebas Neue', sans-serif; font-size: 40px; color: var(--gold); letter-spacing: 0.04em; line-height: 1; min-width: 75px; }
+  .rest-display.urgent { color: var(--rust); }
+  .rest-label { flex: 1; }
+  .rest-label-top { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); margin-bottom: 5px; }
+  .rest-prog-bg { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .rest-prog-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--rust)); transition: width 0.9s linear; }
+  .rest-cancel { background: none; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 14px; color: var(--mid); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.18s; }
+  .rest-cancel:hover { border-color: var(--rust); color: var(--rust); }
+
+  /* ── RULE CARDS ── */
+  .rules-strip { margin: 16px 20px 0; display: flex; flex-direction: column; gap: 8px; }
+  .rule-mini { padding: 12px 14px; border-radius: 10px; font-size: 11.5px; line-height: 1.5; color: var(--light); }
+  .rule-mini.gold-r { background: rgba(201,168,76,0.07); border: 1px solid rgba(201,168,76,0.16); }
+  .rule-mini.rust-r { background: rgba(196,82,42,0.07); border: 1px solid rgba(196,82,42,0.16); }
+  .rule-mini-title { font-weight: 700; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; color: var(--gold); }
+  .rule-mini.rust-r .rule-mini-title { color: var(--rust); }
+
+  /* ── FOOTER ── */
+  .footer-quote { margin: 28px 20px 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06); font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 0.2em; color: rgba(255,255,255,0.1); text-align: center; line-height: 1.8; }
+
+  body.timer-open .app { padding-bottom: 110px; }
+</style>
+  <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">12 Month Plan</div>
+      <div class="date-pill" id="datePill">Tue, Apr 28</div>
+    </div>
+    <div class="day-hero rest-color" id="dayHero">
+      <span>TODAY</span>
+      <span class="accent" id="dayHeroAccent">완전 휴식</span>
+    </div>
+    <div class="focus-line" id="focusLine">회복. 식사. 수면.</div>
+  </div>
+
+  <div class="day-nav" id="dayNav"><button class="day-btn active-rest">SUN</button><button class="day-btn">MON</button><button class="day-btn">TUE<span class="today-dot"></span></button><button class="day-btn">WED</button><button class="day-btn">THU</button><button class="day-btn">FRI</button><button class="day-btn">SAT</button></div>
+
+  <div class="progress-wrap" id="progressWrap" style="display:none;">
+    <div class="progress-meta">
+      <span>완료한 세트</span>
+      <span><span class="done-count" id="doneCount">0</span> / <span id="totalCount">0</span></span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+
+  <div class="complete-banner" id="completeBanner">
+    <h3>🔥 운동 완료</h3>
+    <p>모든 세트 완료. 이제 단백질 챙겨 먹기.</p>
+  </div>
+
+  <div id="sectionLabelMain"></div>
+  <div class="exercises" id="exerciseList"></div>
+
+  <div class="finisher-tag" id="finisherTag" style="display: none;"></div>
+  <div class="bonus-note" id="bonusNote" style="display: none;"></div>
+
+  <div id="sectionLabelBonus"></div>
+  <div class="exercises" id="bonusList"></div>
+
+  <div class="info-screen visible" id="infoScreen">
+    <div class="info-icon">🌿</div>
+    <div class="info-title">완전 휴식</div>
+    <div class="info-sub">회복. 식사. 수면.</div>
+    <div class="info-cards">
+      <div class="info-card "><strong>수면도 훈련.</strong> 7~9시간 수면은 회복과 근육 성장에 중요함.</div><div class="info-card "><strong>단백질은 계속 중요.</strong> 휴식일에도 섭취량을 낮추지 말기. 근육은 계속 회복 중.</div><div class="info-card "><strong>월요일 준비.</strong> 내일은 푸시 데이 — 덤벨과 벤치를 미리 세팅해서 시작 장벽 줄이기.</div>
+    </div>
+  </div>
+
+  <div class="rules-strip" id="rulesStrip"><div class="rule-mini gold-r"><div class="rule-mini-title">회복도 훈련</div><strong>수면, 단백질, 수분</strong> — 세 가지 기본. 하나라도 놓치면 성장도 놓친다.</div><div class="rule-mini rust-r"><div class="rule-mini-title">바벨 단계적 도입</div>약 63.5kg 바벨은 더 무거운 체스트 프레스와 로우를 가능하게 한다. <strong>6~8개월 차에 단계적으로 도입.</strong> 덤벨부터 숙달하기.</div></div>
+
+  <div class="footer-quote">
+    원하는 몸은<br>
+    하기 싫은 날에도 쌓인다.<br>
+    포기 금지. TODAY도. 앞으로도.
+  </div>
+</div>
+
+<!-- GLOBAL REST TIMER -->
+<div class="rest-timer-bar" id="restTimerBar">
+  <div class="rest-display" id="restDisplay">1:30</div>
+  <div class="rest-label">
+    <div class="rest-label-top">휴식 타이머</div>
+    <div class="rest-prog-bg"><div class="rest-prog-fill" id="restProgFill" style="width:100%"></div></div>
+  </div>
+  <button class="rest-cancel" onclick="cancelTimer()">건너뛰기</button>
+</div>
+
+<script>
+const DAYS     = ['SU','MO','TU','WE','TH','FR','SA'];
+const DAY_FULL = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+
+const W = {
+  MO: {
+    type:'push', label:'푸시 데이', focus:'가슴 · 어깨 · 삼두',
+    colorClass:'push-color', btnClass:'active-push',
+    finisher:'🔥 마지막 세트는 거의 한계까지', bonus:'✦ 둔근 마무리 운동 — 1~2회 여유 남기기',
+    exercises:[
+      { name:'덤벨 체스트 프레스',           cue:'준비되면 바벨 사용 → 더 무겁게',     sets:3, reps:'8–12' },
+      { name:'인클라인 덤벨 체스트 프레스',   cue:'벤치 45도, 윗가슴 집중',           sets:3, reps:'8–10' },
+      { name:'덤벨 숄더 프레스',        cue:'가동범위 끝까지, 천천히 내리기',              sets:3, reps:'8–12' },
+      { name:'아놀드 프레스',             cue:'손목을 돌리며 전체 가동범위 사용',       sets:3, reps:'8–10' },
+      { name:'레터럴 레이즈',           cue:'절대 빼먹지 않기 — 어깨 라인의 핵심',             sets:4, reps:'12–15' },
+      { name:'오버헤드 트라이셉스 익스텐션',     cue:'양손으로 덤벨 하나, 팔꿈치 모으기',         sets:3, reps:'10–12' },
+      { name:'스컬 크러셔',           cue:'벤치에 누워 덤벨 사용, 천천히 내리기',             sets:3, reps:'10' },
+    ],
+    bonusExercises:[
+      { name:'힙 쓰러스트',              cue:'상부 등을 벤치에 대고, 덤벨은 골반 위',           sets:3, reps:'8–10' },
+      { name:'루마니안 데드리프트',       cue:'덤벨 들고 힙힌지, 햄스트링 늘어남 느끼기',       sets:2, reps:'10' },
+      { name:'불가리안 스플릿 스쿼트',   cue:'한쪽씩, 뒷발을 올리고 진행',              sets:3, reps:'8–10' },
+      { name:'힙 어브덕션',           cue:'옆으로 누워 천천히 올리고 위에서 수축',     sets:2, reps:'15' },
+    ]
+  },
+  WE: {
+    type:'pull', label:'풀 데이', focus:'등 · 이두 · 후면 어깨',
+    colorClass:'pull-color', btnClass:'active-pull',
+    finisher:'💪 수축 지점에서 강하게 조이기',
+    bonus:'✦ 보너스: 덤벨 풀오버 — V라인 등 너비 보강',
+    exercises:[
+      { name:'원암 덤벨 로우',    cue:'벤치에 몸을 고정',                              sets:3, reps:'8–12' },
+      { name:'양손 덤벨 로우',       cue:'힙힌지, 팔꿈치를 뒤로 당기기',                      sets:3, reps:'8–10' },
+      { name:'리버스 플라이',          cue:'상체 숙이고 위에서 수축',                   sets:3, reps:'12–15' },
+      { name:'이두 컬',          cue:'위에서 손바닥을 완전히 돌리기',                      sets:3, reps:'8–10' },
+      { name:'해머 컬',         cue:'뉴트럴 그립 — 팔 두께 강화',             sets:3, reps:'10–12' },
+      { name:'컨센트레이션 컬',   cue:'팔꿈치를 무릎에 고정, 천천히',                   sets:2, reps:'10' },
+      { name:'크록 로우',             cue:'무겁게 한쪽씩, 손은 무릎/의자에 고정', sets:3, reps:'10–12' },
+    ],
+    bonusExercises:[
+      { name:'덤벨 풀오버', cue:'벤치에 평평하게 누워 팔을 길게, 광배 늘어남 느끼기', sets:3, reps:'10–12' },
+    ]
+  },
+  FR: {
+    type:'sculpt', label:'조각 데이', focus:'어깨 · 팔 — Azzi 데이',
+    colorClass:'sculpt-color', btnClass:'active-sculpt',
+    finisher:'⚡ 선명한 라인을 만드는 날', bonus:null,
+    exercises:[
+      { name:'아놀드 프레스',          cue:'가능하면 월요일보다 무겁게',           sets:3, reps:'8' },
+      { name:'레터럴 레이즈',         cue:'네거티브 천천히 — 3초 동안 내리기',             sets:4, reps:'12–15' },
+      { name:'프론트 레이즈',           cue:'번갈아가며, 컨트롤 유지',                sets:3, reps:'12' },
+      { name:'린잉 레터럴 레이즈', cue:'몸을 기울이고 한쪽씩, 더 깊은 가동범위',   sets:3, reps:'12' },
+      { name:'트라이셉스 킥백',      cue:'팔꿈치 고정, 힙힌지',             sets:3, reps:'12' },
+      { name:'스컬 크러셔',        cue:'벤치에서 덤벨로 진행',                    sets:3, reps:'10' },
+      { name:'이두 드롭 세트',        cue:'최대 무게 → 낮추고 → 계속 진행',         sets:1, reps:'AMRAP' },
+    ],
+    bonusExercises:[]
+  },
+  TH: {
+    type:'lower', label:'하체 + 코어', focus:'대퇴사두 · 둔근 · 햄스트링 · 코어',
+    colorClass:'lower-color', btnClass:'active-lower',
+    finisher:'🦵 뒤꿈치로 밀기 — 둔근 먼저', bonus:null,
+    exercises:[
+      { name:'힙 쓰러스트',              cue:'상부 등을 벤치에 대고, 덤벨은 골반 위, 완전 신전',  sets:4, reps:'8–10' },
+      { name:'루마니안 데드리프트',       cue:'덤벨 들고 힙힌지, 무릎은 살짝 굽히기',                     sets:3, reps:'10' },
+      { name:'사이드 라잉 힙 어브덕션',cue:'천천히 올리고 위에서 강하게 수축',                   sets:3, reps:'15' },
+      { name:'스모 스쿼트',              cue:'넓은 보폭, 발끝 바깥쪽, 덤벨은 가슴 앞',               sets:3, reps:'12' },
+      { name:'불가리안 스플릿 스쿼트',   cue:'한쪽씩, 뒷발을 올리고 진행',                     sets:3, reps:'8–10' },
+      { name:'리버스 런지',          cue:'덤벨 들고, 뒤로 천천히 내딛기',                        sets:3, reps:'10' },
+      { name:'러시안 트위스트',          cue:'발을 들고, 덤벨로 저항 추가',                 sets:3, reps:'15' },
+      { name:'사이드 플랭크 홀드',         cue:'팔꿈치는 어깨 아래, 골반은 일직선',               sets:3, reps:'35s' },
+      { name:'플랭크 홀드',              cue:'매트 위에서 코어 강하게 고정',                         sets:3, reps:'45s' },
+      { name:'데드 버그',                cue:'천천히, 반대쪽 팔/다리 뻗기',                 sets:3, reps:'10' },
+    ],
+    bonusExercises:[]
+  },
+  TU: {
+    type:'cardio', label:'유산소 데이', focus:'16km · 사이클',
+    colorClass:'cardio-color', btnClass:'active-cardio',
+  },
+  SA: {
+    type:'flex', label:'플렉스 데이', focus:'8km 사이클 + 하체 & 코어 전체',
+    colorClass:'flex-color', btnClass:'active-flex',
+    exercises:[
+      { name:'힙 쓰러스트',               cue:'상부 등을 벤치에 대고, 덤벨은 골반 위, 완전 신전',  sets:4, reps:'8–10' },
+      { name:'루마니안 데드리프트',        cue:'덤벨 들고 힙힌지, 무릎은 살짝 굽히기',                     sets:3, reps:'10' },
+      { name:'사이드 라잉 힙 어브덕션', cue:'천천히 올리고 위에서 강하게 수축',                   sets:3, reps:'15' },
+      { name:'스모 스쿼트',               cue:'넓은 보폭, 발끝 바깥쪽, 덤벨은 가슴 앞',               sets:3, reps:'12' },
+      { name:'불가리안 스플릿 스쿼트',    cue:'한쪽씩, 뒷발을 올리고 진행',                     sets:3, reps:'8–10' },
+      { name:'리버스 런지',           cue:'덤벨 들고, 뒤로 천천히 내딛기',                        sets:3, reps:'10' },
+      { name:'러시안 트위스트',           cue:'발을 들고, 덤벨로 저항 추가',                 sets:3, reps:'15' },
+      { name:'사이드 플랭크 홀드',          cue:'팔꿈치는 어깨 아래, 골반은 일직선',               sets:3, reps:'35s' },
+      { name:'플랭크 홀드',               cue:'매트 위에서 코어 강하게 고정',                         sets:3, reps:'45s' },
+      { name:'데드 버그',                 cue:'천천히, 반대쪽 팔/다리 뻗기',                 sets:3, reps:'10' },
+    ]
+  },
+  SU: {
+    type:'rest', label:'완전 휴식', focus:'회복. 식사. 수면.',
+    colorClass:'rest-color', btnClass:'active-rest',
+  },
+};
+
+const INFO_CONTENT = {
+  TU:{
+    icon:'🚴',
+    title:'유산소 데이',
+    sub:'자전거 16km. 지름길 없음.',
+    cards:[
+      { cls:'blue-card', text:'<strong>목표: 16km</strong><br>중간 강도 페이스 — RPE 6~7. 회복 라이딩도, 레이스도 아님. 꾸준히.' },
+      { cls:'blue-card', text:'<strong>예상 시간:</strong> 저항과 페이스에 따라 약 35~50분. 거리와 시간을 기록하기.' },
+      { cls:'',          text:'<strong>단백질은 TODAY도 중요합니다.</strong> 유산소 하는 날도 영양 관리를 쉬는 날이 아닙니다. 목표 섭취량을 채우세요.' },
+      { cls:'',          text:'<strong>모빌리티 보너스:</strong> 라이딩 후 고관절 굴근과 흉추 10~15분. 선택이지만 현명함.' },
+    ]
+  },
+  SA:{
+    icon:'⚡',
+    title:'플렉스 데이',
+    sub:'사이클 8km 후 하체 + 코어 전체 루틴.',
+    cards:[
+      { cls:'blue-card', text:'<strong>사이클 먼저: 8km</strong><br>워밍업 페이스. RPE 5~6. 리프팅 전 혈류 올리기.' },
+      { cls:'',          text:'<strong>그다음: 하체 + 코어 전체</strong><br>총 10개 운동 — 목요일과 같은 순서. 아래에서 세트 기록.' },
+      { cls:'',          text:'<strong>이건 완전한 운동일.</strong> 가벼운 날 아님. 목요일과 같은 집중도로.' },
+    ]
+  },
+  SU:{
+    icon:'🌿',
+    title:'완전 휴식',
+    sub:'회복. 식사. 수면.',
+    cards:[
+      { cls:'', text:'<strong>수면도 훈련.</strong> 7~9시간 수면은 회복과 근육 성장에 중요함.' },
+      { cls:'', text:'<strong>단백질은 휴식일에도 중요합니다.</strong> 쉬는 날이라고 섭취량을 줄이지 마세요. 근육은 하루 종일 회복됩니다.' },
+      { cls:'', text:'<strong>월요일 준비.</strong> 내일은 푸시 데이 — 덤벨과 벤치를 미리 세팅해서 시작 장벽 줄이기.' },
+    ]
+  },
+};
+
+// ── STATE ──
+let currentDay  = DAYS[new Date().getDay()];
+let setStates   = {};  // exIdx → { setIdx: bool }, bonus offset by 1000
+let restInterval = null;
+let restTotal    = 90;
+let restRemaining = 0;
+let activeTimerEx = null;
+
+function formatDate() {
+  return new Date().toLocaleDateString('ko-KR', { weekday:'short', month:'long', day:'numeric' });
+}
+
+// ── NAV ──
+function buildNav() {
+  const nav = document.getElementById('dayNav');
+  nav.innerHTML = '';
+  const todayCode = DAYS[new Date().getDay()];
+  DAYS.forEach((d, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-btn';
+    btn.innerHTML = DAY_FULL[i] + (d === todayCode ? '<span class="today-dot"></span>' : '');
+    if (d === currentDay) btn.classList.add(W[d].btnClass);
+    btn.addEventListener('click', () => { currentDay = d; setStates = {}; cancelTimer(); render(); buildNav(); });
+    nav.appendChild(btn);
+  });
+}
+
+// ── RENDER ──
+function render() {
+  const w = W[currentDay];
+  const isLifting  = ['push','pull','sculpt','lower','flex'].includes(w.type);
+  const isFlex     = w.type === 'flex';
+  const isCardio   = w.type === 'cardio';
+  const isInfo     = ['cardio','rest'].includes(w.type);
+  const hasBonus   = w.bonusExercises && w.bonusExercises.length > 0;
+
+  // Header
+  document.getElementById('datePill').textContent      = formatDate();
+  document.getElementById('dayHeroAccent').textContent = w.label;
+  document.getElementById('dayHero').className         = 'day-hero ' + w.colorClass;
+  document.getElementById('focusLine').textContent     = w.focus;
+
+  // Reset containers
+  document.getElementById('progressWrap').style.display = (isLifting && !isCardio) ? 'block' : 'none';
+  document.getElementById('completeBanner').classList.remove('visible');
+  document.getElementById('exerciseList').innerHTML = '';
+  document.getElementById('bonusList').innerHTML    = '';
+  document.getElementById('sectionLabelMain').innerHTML  = '';
+  document.getElementById('sectionLabelBonus').innerHTML = '';
+  document.getElementById('finisherTag').style.display = 'none';
+  document.getElementById('bonusNote').style.display   = 'none';
+  const info = document.getElementById('infoScreen');
+  info.innerHTML = ''; info.classList.remove('visible');
+
+  if (isInfo) {
+    buildInfoScreen(w.type);
+  } else {
+    // main section label for flex (cycling reminder)
+    if (isFlex) {
+      document.getElementById('sectionLabelMain').innerHTML = `<div class="section-label">🚴 8km 사이클 먼저, 그다음 리프팅</div>`;
+    }
+    buildExercises(w.exercises || [], 'exerciseList', 0);
+    if (w.finisher) { const ft = document.getElementById('finisherTag'); ft.textContent = w.finisher; ft.style.display = 'block'; }
+    if (w.bonus)    { const bn = document.getElementById('bonusNote');   bn.textContent = w.bonus;   bn.style.display = 'block'; }
+    if (hasBonus) {
+      const bonusLabel = w.type === 'pull' ? '보너스 · V라인 등 너비' : '둔근 마무리 · 여유 있게';
+      document.getElementById('sectionLabelBonus').innerHTML = `<div class="section-label">${bonusLabel}</div>`;
+      buildExercises(w.bonusExercises, 'bonusList', 1000, true);
+    }
+    updateProgress();
+  }
+
+  buildRules(isLifting);
+}
+
+// ── WEIGHT STORAGE ──
+function wKey(day, name)     { return `w_${day}_${name.replace(/\s+/g,'_')}`; }
+function wKeyLast(day, name) { return `wl_${day}_${name.replace(/\s+/g,'_')}`; }
+function get무게(day, name)     { try { return localStorage.getItem(wKey(day,name)) || ''; }     catch(e){ return ''; } }
+function getLast무게(day, name) { try { return localStorage.getItem(wKeyLast(day,name)) || ''; } catch(e){ return ''; } }
+function save무게(day, name, val) {
+  try {
+    const prev = get무게(day, name);
+    // promote previous entry to "last" before overwriting
+    if (prev && prev !== val) localStorage.setItem(wKeyLast(day,name), prev);
+    localStorage.setItem(wKey(day,name), val);
+  } catch(e) {}
+}
+function render무게Hint(day, name, inputEl) {
+  const hint = inputEl.parentElement.nextElementSibling;
+  if (!hint || !hint.classList.contains('weight-last')) return;
+  const last = getLast무게(day, name);
+  const cur  = inputEl.value.trim();
+  if (!last) { hint.innerHTML = '<span style="opacity:0.4">이전 기록 없음</span>'; return; }
+  const isPR = cur && parseFloat(cur) > parseFloat(last);
+  hint.innerHTML = `이전: <span class="last-val">${last} kg</span>${isPR ? '<span class="pr-flag">▲ PR!</span>' : ''}`;
+}
+
+// ── BUILD EXERCISES ──
+function buildExercises(exArr, containerId, offset, isBonus) {
+  const list = document.getElementById(containerId);
+  exArr.forEach((ex, i) => {
+    const idx = i + offset;
+    if (!setStates[idx]) setStates[idx] = {};
+    const allDone = [...Array(ex.sets).keys()].every(s => setStates[idx][s]);
+    const saved무게 = get무게(currentDay, ex.name);
+    const last무게  = getLast무게(currentDay, ex.name);
+
+    const card = document.createElement('div');
+    card.className = 'ex-card' + (isBonus ? ' bonus-card' : '') + (allDone ? ' completed' : '');
+    card.id = 'ex-card-' + idx;
+    card.style.animationDelay = (i * 0.045) + 's';
+
+    let dots = '';
+    for (let s = 0; s < ex.sets; s++) {
+      dots += `<div class="set-dot${setStates[idx][s] ? ' done' : ''}" onclick="toggleSet(${idx},${s})">${s+1}</div>`;
+    }
+
+    const lastHint = last무게
+      ? `이전: <span class="last-val">${last무게} kg</span>`
+      : '<span style="opacity:0.4">이전 기록 없음</span>';
+
+    card.innerHTML = `
+      <div class="ex-top">
+        <div>
+          <div class="ex-name-text">${ex.name}</div>
+          <div class="ex-cue">${ex.cue}</div>
+        </div>
+        <div class="ex-badge">${ex.sets}×${ex.reps}</div>
+      </div>
+      <div class="weight-row">
+        <span class="weight-label">무게</span>
+        <input class="weight-input" type="number" inputmode="decimal" placeholder="0"
+          value="${saved무게}"
+          data-day="${currentDay}" data-name="${ex.name.replace(/"/g,'&quot;')}"
+          oninput="handle무게Input(this)" />
+        <span class="weight-unit">kg</span>
+      </div>
+      <div class="weight-last">${lastHint}</div>
+      <div class="set-dots">${dots}</div>
+      <button class="timer-btn" id="timer-btn-${idx}" onclick="startTimer(${idx})">⏱ 90초 휴식</button>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function handle무게Input(el) {
+  const day  = el.dataset.day;
+  const name = el.dataset.name;
+  save무게(day, name, el.value.trim());
+  render무게Hint(day, name, el);
+}
+
+// ── TOGGLE SET ──
+function toggleSet(exIdx, setIdx) {
+  setStates[exIdx][setIdx] = !setStates[exIdx][setIdx];
+
+  const dot = document.querySelector(`#ex-card-${exIdx} .set-dot:nth-child(${setIdx + 1})`);
+  if (dot) {
+    dot.classList.toggle('done', setStates[exIdx][setIdx]);
+    dot.classList.add('pop');
+    dot.addEventListener('animationend', () => dot.classList.remove('pop'), { once: true });
+  }
+
+  const w   = W[currentDay];
+  const allExercises = [...(w.exercises || []), ...(w.bonusExercises || [])];
+  const flatIdx = exIdx >= 1000 ? (exIdx - 1000 + (w.exercises || []).length) : exIdx;
+  const ex = allExercises[flatIdx];
+  if (ex) {
+    const allDone = [...Array(ex.sets).keys()].every(s => setStates[exIdx][s]);
+    const card = document.getElementById('ex-card-' + exIdx);
+    if (card) card.classList.toggle('completed', allDone);
+  }
+
+  if (setStates[exIdx][setIdx]) startTimer(exIdx);
+  updateProgress();
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  const w = W[currentDay];
+  const allEx = [...(w.exercises || []).map((e,i)=>({e,idx:i})), ...(w.bonusExercises||[]).map((e,i)=>({e,idx:i+1000}))];
+  let total = 0, done = 0;
+  allEx.forEach(({e,idx}) => {
+    total += e.sets;
+    for (let s = 0; s < e.sets; s++) { if (setStates[idx]?.[s]) done++; }
+  });
+  document.getElementById('doneCount').textContent  = done;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('progressFill').style.width = (total ? done/total*100 : 0) + '%';
+  document.getElementById('completeBanner').classList.toggle('visible', done === total && total > 0);
+}
+
+// ── INFO SCREEN ──
+function buildInfoScreen(type) {
+  const data = INFO_CONTENT[currentDay];
+  if (!data) return;
+  const sc = document.getElementById('infoScreen');
+  sc.classList.add('visible');
+  sc.innerHTML = `
+    <div class="info-icon">${data.icon}</div>
+    <div class="info-title">${data.title}</div>
+    <div class="info-sub">${data.sub}</div>
+    <div class="info-cards">
+      ${data.cards.map(c => `<div class="info-card ${c.cls||''}">${c.text}</div>`).join('')}
+    </div>
+  `;
+
+  // Saturday: also show exercise tracker below info
+  if (currentDay === 'SA') {
+    const w = W['SA'];
+    document.getElementById('sectionLabelBonus').innerHTML = `<div class="section-label">하체 + 코어 · 여유 있게</div>`;
+    buildExercises(w.exercises || [], 'bonusList', 0, false);
+    document.getElementById('progressWrap').style.display = 'block';
+    updateProgress();
+  }
+}
+
+// ── REST TIMER ──
+function startTimer(exIdx) {
+  cancelTimer();
+  activeTimerEx = exIdx;
+  restTotal = 90;
+  restRemaining = restTotal;
+  document.getElementById('restTimerBar').classList.add('visible');
+  document.body.classList.add('timer-open');
+  updateTimerDisplay();
+
+  const btn = document.getElementById('timer-btn-' + exIdx);
+  if (btn) { btn.classList.add('running'); btn.textContent = '⏱ 휴식 중...'; }
+
+  restInterval = setInterval(() => {
+    restRemaining--;
+    updateTimerDisplay();
+    if (restRemaining <= 0) { clearInterval(restInterval); timerDone(exIdx); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(restRemaining / 60);
+  const s = restRemaining % 60;
+  const d = document.getElementById('restDisplay');
+  d.textContent = `${m}:${String(s).padStart(2,'0')}`;
+  d.className   = 'rest-display' + (restRemaining <= 10 ? ' urgent' : '');
+  document.getElementById('restProgFill').style.width = (restRemaining / restTotal * 100) + '%';
+}
+
+function timerDone(exIdx) {
+  document.getElementById('restTimerBar').classList.remove('visible');
+  document.body.classList.remove('timer-open');
+  const btn = document.getElementById('timer-btn-' + exIdx);
+  if (btn) { btn.classList.remove('running'); btn.classList.add('done-timer'); btn.textContent = '✓ 휴식 완료'; }
+  activeTimerEx = null;
+}
+
+function cancelTimer() {
+  if (restInterval) clearInterval(restInterval);
+  restInterval = null;
+  document.getElementById('restTimerBar').classList.remove('visible');
+  document.body.classList.remove('timer-open');
+  if (activeTimerEx !== null) {
+    const btn = document.getElementById('timer-btn-' + activeTimerEx);
+    if (btn) { btn.classList.remove('running'); btn.textContent = '⏱ 90초 휴식'; }
+  }
+  activeTimerEx = null;
+}
+
+// ── RULES ──
+function buildRules(isLifting) {
+  const strip = document.getElementById('rulesStrip');
+  strip.innerHTML = '';
+  const rules = isLifting ? [
+    { cls:'gold-r', title:'+2.5kg 규칙', text:'Hit the top of your rep range cleanly? <strong>Add 5 kg next session</strong> and drop back to the bottom. That\'s how muscle grows.' },
+    { cls:'rust-r', title:'네거티브 천천히', text:'레터럴, 컬, 체스트 프레스는 <strong>3초 동안 내리기</strong>. 이완 구간이 근성장에 중요하다.' },
+  ] : [
+    { cls:'gold-r', title:'회복도 훈련', text:'<strong>수면, 단백질, 수분</strong> — 세 가지 기본. 하나라도 놓치면 성장도 놓친다.' },
+    { cls:'rust-r', title:'바벨 단계적 도입', text:'약 63.5kg 바벨은 더 무거운 체스트 프레스와 로우를 가능하게 한다. <strong>6~8개월 차에 단계적으로 도입.</strong> 덤벨부터 숙달하기.' },
+  ];
+  rules.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'rule-mini ' + r.cls;
+    div.innerHTML = `<div class="rule-mini-title">${r.title}</div>${r.text}`;
+    strip.appendChild(div);
+  });
+}
+
+// ── INIT ──
+buildNav();
+render();
+</script>
+
+
+</body>
+</html>
